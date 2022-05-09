@@ -1,5 +1,7 @@
 import numpy as np
+import torchvision
 import torch
+from torch import nn
 import soft_renderer as sr
 from .losses import img_loss, landmark_loss
 from .bfm import BFM
@@ -15,8 +17,10 @@ class ReconModel:
 		self.model_names=['face_recon']
 		self.visual_names=['visualization']
 		self.parallel_names = self.model_names + ['renderer']
+        resnet50 = torchvision.models.resnet50(pretrained=True)
+        resnet50.fc = nn.Linear(resnet50.fc.in_features, 4) 
 
-		self.net_recon = ## TODO ## define ResNet50 pretrain
+		self.net_recon = resnet50
 
 		self.face_model = BFM()
 		self.renderer = sr.SoftRenderer(image_size=224, sigma_val=1e-4, aggr_func_rgb='hard', 
@@ -24,7 +28,7 @@ class ReconModel:
                             perspective=False, light_intensity_ambient=1.0, light_intensity_directionals=0)
 
 		if self.isTrain:
-			self.net_recog = ## TODO ## eval()
+			self.net_recog = resnet50
 			self.loss_names = ['all', 'lm', 'img']
 			self.comupte_img_loss = img_loss
 			self.compute_lm_loss = landmark_loss
