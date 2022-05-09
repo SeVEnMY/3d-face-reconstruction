@@ -9,25 +9,25 @@ import trimesh
 
 class ReconModel:
 	def __init__(self, is_train):
-        self.isTrain = is_train
-        self.device = torch.device('gpu') 
-        self.save_dir = os.path.join('./checkpoints', '111')  # save all the checkpoints to save_dir
-        self.loss_names = []
-        self.image_paths = []
-	    self.model_names=['face_recon']
-	    self.visual_names=['visualization']
-	    self.parallel_names = self.model_names + ['renderer']
-        self.resnet50 = torchvision.models.resnet50(pretrained=True)
-        self.resnet50.fc = nn.Linear(resnet50.fc.in_features, 251) 
+    self.isTrain = is_train
+    self.device = torch.device('gpu') 
+    self.save_dir = os.path.join('./checkpoints', '111')  # save all the checkpoints to save_dir
+    self.loss_names = []
+    self.image_paths = []
+		self.model_names=['face_recon']
+		self.visual_names=['visualization']
+		self.parallel_names = self.model_names + ['renderer']
+    self.resnet50 = torchvision.models.resnet50(pretrained=True)
+    self.resnet50.fc = nn.Linear(resnet50.fc.in_features, 251)
 
-	    self.net_recon = self.resnet50
+		self.net_recon = self.resnet50
 
-	    self.face_model = BFM()
-	    self.renderer = sr.SoftRenderer(image_size=224, sigma_val=1e-4, aggr_func_rgb='hard', 
+		self.face_model = BFM()
+		self.renderer = sr.SoftRenderer(image_size=224, sigma_val=1e-4, aggr_func_rgb='hard', 
                             camera_mode='look_at', viewing_angle=30, fill_back=False,
                             perspective=False, light_intensity_ambient=1.0, light_intensity_directionals=0)
 
-	    if self.isTrain:
+		if self.isTrain:
 			self.net_recog = self.resnet50
 			self.loss_names = ['all', 'lm', 'img']
 			self.comupte_img_loss = img_loss
