@@ -133,6 +133,6 @@ class BFM:
 
       face_texture = self.compute_texture(coef_dict['tex'])
       face_norm = self.compute_norm(face_shape)
-      face_color = self.compute_light(face_texture, face_norm, coef_dict['gamma'])
+      face_light = self.compute_light(face_texture, face_norm, coef_dict['gamma'])
 
       return face_vertex, face_texture, face_light, landmark

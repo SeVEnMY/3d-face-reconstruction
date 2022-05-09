@@ -45,21 +45,19 @@ class ReconModel:
     self.image_paths = input['im_paths'] if 'im_paths' in input else None
 
   def forward(self):
-  	id_base, ex_base, tex_base, gamma = self.net_recon(self.input_img)
+  	coeffs = self.net_recon(self.input_img)
   	self.face_model.to(self.device)
-  	self.pred_shape = self.face_model.get_shape(id_base, ex_base)
-  	self.pred_tex = self.face_model.get_texture(tex_base)
-  	self.pred_shape = self.face_model.apply_rotation(np.array([[0,0,np.pi/2]]), self.pred_shape.reshape(-1,3))
-  	self.normal = self.face_model.get_normal(self.pred_shape.reshape(-1, 3))
-  	self.pred_tex = tex = model.apply_lighting(self.normal, self.pred_tex.reshape(-1,3)/255., gamma)
+  	self.pred_vertex, self.pred_tex, self.pred_light, self.pred_lm = \
+  		self.face_model.compute_for_render(coeffs)
+  	self.pred_coeffs_dict = self.face_model.split_coeff(output_coeff)
 
-  	self.pred_shape = self.pred_shape.reshape(-1, 3)
-  	self.tex = self.tex.reshape(-1, 3)/255
-  	self.mesh = trimesh(vertices=self.pred_shape,
-                       faces=self.face_model.tri-1,
-                       vertex_colors=self.pred_tex)
-  	self.pred_lm=...
-  	self.pred_img=...
+  	self.renderer = sr.SoftRenderer(image_size=224, sigma_val=1e-4, aggr_func_rgb='hard',
+                            camera_mode='look_at', viewing_angle=30, fill_back=False,
+                            perspective=False, light_intensity_ambient=1.0, light_intensity_directionals=0)
+  	self.pred_img = self.renderer(torch.Tensor(self.face_vertex[None,:,:,]).cuda(),
+               torch.Tensor(np.flip(self.face_model.tri-1, axis=1).copy()).cuda(),
+               torch.Tensor(self.pred_tex[None,:,:]).cuda(),
+               texture_type="vertex")[0].permute(1,2,0)
 
   def compute_losses(self):
   	assert self.net_recog.training == False
