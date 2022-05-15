@@ -110,22 +110,59 @@ class BFM:
     def get_landmarks(self, face_proj):
       return face_proj[:, self.keypoints]
 
+
+    def compute_rotation(self, angles):
+      batch_size = angles.shape[0]
+      ones = torch.ones([batch_size, 1]).to(self.device)
+      zeros = torch.zeros([batch_size, 1]).to(self.device)
+      x, y, z = angles[:, :1], angles[:, 1:2], angles[:, 2:],
+      
+      rot_x = torch.cat([
+          ones, zeros, zeros,
+          zeros, torch.cos(x), -torch.sin(x), 
+          zeros, torch.sin(x), torch.cos(x)
+      ], dim=1).reshape([batch_size, 3, 3])
+      
+      rot_y = torch.cat([
+          torch.cos(y), zeros, torch.sin(y),
+          zeros, ones, zeros,
+          -torch.sin(y), zeros, torch.cos(y)
+      ], dim=1).reshape([batch_size, 3, 3])
+
+      rot_z = torch.cat([
+          torch.cos(z), -torch.sin(z), zeros,
+          torch.sin(z), torch.cos(z), zeros,
+          zeros, zeros, ones
+      ], dim=1).reshape([batch_size, 3, 3])
+
+      rot = rot_z @ rot_y @ rot_x
+      return rot.permute(0, 2, 1)
+
+    def transform(self, face_shape, rot, trans):
+      return face_shape @ rot + trans.unsqueeze(1)
+
     def split_coeff(self, coeffs):
       id_coeffs = coeffs[:, :80]
       exp_coeffs = coeffs[:, 80: 144]
       tex_coeffs = coeffs[:, 144: 224]
-      gammas = coeffs[:, 224: 251]
+      angles = coeffs[:, 224: 227]
+      gammas = coeffs[:, 227: 254]
+      translations = coeffs[:, 254:]
       return {
           'id': id_coeffs,
           'exp': exp_coeffs,
           'tex': tex_coeffs,
+          'angle': angles,
           'gamma': gammas,
+          'trans': translations
       }
 
     def compute_for_render(self, coeffs):
       coef_dict = self.split_coeff(coeffs)
       face_shape = self.compute_shape(coef_dict['id'], coef_dict['exp'])
+      rotation = self.compute_rotation(coef_dict['angle'])
 
+      face_shape_transformed = self.transform(face_shape, rotation, coef_dict['trans'])
       face_vertex = self.to_camera(face_shape)
       
       face_proj = self.to_image(face_vertex)
@@ -133,6 +170,7 @@ class BFM:
 
       face_texture = self.compute_texture(coef_dict['tex'])
       face_norm = self.compute_norm(face_shape)
-      face_light = self.compute_light(face_texture, face_norm, coef_dict['gamma'])
+      face_norm_rotated = face_norm @ rotation
+      face_light = self.compute_light(face_texture, face_norm_rotated, coef_dict['gamma'])
 
       return face_vertex, face_texture, face_light, landmark
