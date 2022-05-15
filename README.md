@@ -1,7 +1,7 @@
 # 3d-face-reconstruction
 
 ### 3D Face Reconstruction with 3DMM Face Model from RGB image
-This is a project reconstructing 3D face mesh from related RGB image, with the help of Basel Face Model(BFM) and soft renderer(differantiable rendered). 
+This is a project reconstructing 3D face mesh from related RGB image, with the help of Basel Face Model(BFM) and soft renderer(differantiable renderer). 
 
 #### Test
 1. Make sure you have python3 and related pip3 installed.
