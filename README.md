@@ -14,7 +14,7 @@ source activate py3dface
 4. Please download our pretrained model from [Google Drive](https://drive.google.com/file/d/1NfyXzh_CV-BWlZfOK7K68YLoNSu4lEgz/view?usp=sharing).
 5. Please download the pretrained resnet50 model from [Google Drive](https://drive.google.com/file/d/1B3U2bdZlRh7BldGoiemxUAXs7BKKwxDJ/view?usp=sharing). and put it under folder `./checkpoints/init_model`
 6. Please download the BFM from [Google Drive](https://drive.google.com/file/d/1XAGc2VcidxRGIaP0OAh3S54YIVakzroe/view?usp=sharing). and put it as './BFM'
-7. Please install nvdiffrast from [Github]https://github.com/NVlabs/nvdiffrast/tree/a4e7a4db7e09695b4efc7641cc6b044ef706f953. and put it as './nvdiffrast'
+7. Please install nvdiffrast from [Github](https://github.com/NVlabs/nvdiffrast/tree/a4e7a4db7e09695b4efc7641cc6b044ef706f953). and put it as './nvdiffrast'
 8. Put the model to the folder `./checkpoints/twoloss/...`
 9. Put images you want to test with into the folder `./examples`
 10. Run `preprocessing.ipynb` with all images you want to test with, and put all generated `.txt` files (with the same name but different postfix as images) into the folder `./examples/detections`.
