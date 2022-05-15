@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 ### image level loss
-def imgoss(imageA, imageB, mask, eps=1e-6):
+def image_loss(imageA, imageB, mask, eps=1e-6):
     loss = torch.sqrt(eps + torch.sum((imageA - imageB) ** 2, dim=1, keepdims=True)) * mask
     loss = torch.sum(loss) / torch.max(torch.sum(mask), torch.tensor(1.0).to(mask.device))
     return loss
