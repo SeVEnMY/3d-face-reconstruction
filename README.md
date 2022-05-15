@@ -22,4 +22,4 @@ source activate py3dface
 ```
 python test.py
 ```
-9. Results will be stored in ./checkpoints/twoloss/examples
+12. Results will be stored in ./checkpoints/twoloss/examples
